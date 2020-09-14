@@ -15,7 +15,17 @@ const user = new mongoose.Schema({
   //   password: { type: String, required: true },
   firstName: String,
   lastName: String,
-  following: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }]
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+  len: Number,
+  info: {
+    faveBowlingAlley: String,
+    faveListOfNumbers: [{ type: Number }]
+  }
+});
+
+user.virtual("fullname").get(function() {
+  console.log("inside virtual");
+  return `${this.firstName} ${this.lastName}`;
 });
 
 const UserModel = mongoose.model("user", user);
@@ -25,10 +35,15 @@ connect().then(connection => {
   async function createUser() {
     try {
       const createdUser = await UserModel.create({
-        username: "del",
-        firstName: "del",
-        lastName: "del",
-        following: ["5f5f857173892c4408401e57", "5f5f85f887dcf2441f096960"]
+        username: "ld@curb.com",
+        firstName: "Larry",
+        lastName: "David",
+        following: [],
+        len: 5,
+        info: {
+          faveBowlingAlley: "Leon's",
+          faveListOfNumbers: [5, 3, 88]
+        }
       });
       console.log(createdUser);
     } catch (error) {
@@ -62,7 +77,11 @@ connect().then(connection => {
     try {
       const user = await UserModel.findByIdAndUpdate(
         "5f5f857173892c4408401e57",
-        { lastName: "Sunglasses", following: ["5f5f85f887dcf2441f096960"] }
+        {
+          len: 3,
+          lastName: "Sunglasses",
+          following: ["5f5f85f887dcf2441f096960"]
+        }
       );
       console.log(user);
     } catch (error) {
@@ -83,11 +102,36 @@ connect().then(connection => {
   }
   //   deleteById();
 
-  //   async listFollowing(){
-  //       try {
+  //return a user's info with people that user is following to show on landing page
+  async function getOneUserPopulateFollowing() {
+    try {
+      const populatedUser = await UserModel.findById("5f5f85f887dcf2441f096960")
+        .populate("following")
+        .exec();
 
-  //       } catch (error) {
-  //           console.log(error)
-  //       }
-  //   }
+      console.log(populatedUser);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  //   getOneUserPopulateFollowing();
+
+  async function filterOutUsersWithLongName() {
+    try {
+      const users = await UserModel.find({ fnameLen: { $lt: 4 } });
+      console.log(users);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  //   filterOutUsersWithLongName();
+  async function getUsersWFullname() {
+    try {
+      const user = await UserModel.findById("5f5f857173892c4408401e57");
+      console.log(user.fullname);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  //   getUsersWFullname();
 });
