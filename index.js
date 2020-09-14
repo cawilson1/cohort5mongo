@@ -30,7 +30,7 @@ user.virtual("fullname").get(function() {
 
 const UserModel = mongoose.model("user", user);
 
-connect().then(connection => {
+connect().then(() => {
   //create user
   async function createUser() {
     try {
@@ -125,13 +125,15 @@ connect().then(connection => {
     }
   }
   //   filterOutUsersWithLongName();
-  async function getUsersWFullname() {
+  function getUsersWFullname() {
     try {
-      const user = await UserModel.findById("5f5f857173892c4408401e57");
-      console.log(user.fullname);
+      UserModel.findById("5f5f857173892c4408401e57").then(user =>
+        console.log(user.fullname)
+      );
+      //   console.log(user.fullname);
     } catch (error) {
       console.log(error);
     }
   }
-  //   getUsersWFullname();
+  getUsersWFullname();
 });
